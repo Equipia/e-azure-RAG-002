@@ -8,6 +8,7 @@ import rehypeRaw from "rehype-raw";
 
 import styles from "./Answer.module.css";
 import { ChatAppResponse, getCitationFilePath, SpeechConfig } from "../../api";
+import { getOriginalPage } from "../../api/pdfPageMapping";
 import { parseAnswerToHtml } from "./AnswerParser";
 import { AnswerIcon } from "./AnswerIcon";
 import { SpeechOutputBrowser } from "./SpeechOutputBrowser";
@@ -112,9 +113,20 @@ export const Answer = ({
                             const path = getCitationFilePath(x);
                             // Strip out the image filename in parentheses if it exists
                             const strippedPath = path.replace(/\([^)]*\)$/, "");
+                            // Try to extract part file and page number from citation string
+                            let pageSuffix = "";
+                            const match = x.match(/(z8000-18-part\d+\.pdf)#page=(\d+)/);
+                            if (match) {
+                                const [, partFile, pageStr] = match;
+                                const pageNum = parseInt(pageStr, 10);
+                                const origPage = getOriginalPage(partFile, pageNum);
+                                if (origPage) {
+                                    pageSuffix = ` (Page ${origPage})`;
+                                }
+                            }
                             return (
-                                <a key={i} className={styles.citation} title={x} onClick={() => onCitationClicked(strippedPath)}>
-                                    {`${++i}. ${x}`}
+                                <a key={i} className={styles.citation} title={x + pageSuffix} onClick={() => onCitationClicked(strippedPath)}>
+                                    {`${i + 1}. ${x}${pageSuffix}`}
                                 </a>
                             );
                         })}

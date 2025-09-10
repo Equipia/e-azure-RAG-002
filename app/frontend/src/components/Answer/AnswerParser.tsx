@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { ChatAppResponse, getCitationFilePath } from "../../api";
+import { getOriginalPage } from "../../api/pdfPageMapping";
 
 type HtmlParsedAnswer = {
     answerHtml: string;
@@ -53,9 +54,22 @@ export function parseAnswerToHtml(answer: ChatAppResponse, isStreaming: boolean,
 
             const path = getCitationFilePath(part);
 
+            // Try to extract part file and page number from citation string
+            let pageSuffix = "";
+            const match = part.match(/(z8000-18-part\d+\.pdf)#page=(\d+)/);
+            if (match) {
+                const [, partFile, pageStr] = match;
+                const pageNum = parseInt(pageStr, 10);
+                const origPage = getOriginalPage(partFile, pageNum);
+                if (origPage) {
+                    pageSuffix = ` (Page ${origPage})`;
+                }
+            }
+
             return renderToStaticMarkup(
-                <a className="supContainer" title={part} onClick={() => onCitationClicked(path)}>
+                <a className="supContainer" title={part + pageSuffix} onClick={() => onCitationClicked(path)}>
                     <sup>{citationIndex}</sup>
+                    {pageSuffix}
                 </a>
             );
         }
