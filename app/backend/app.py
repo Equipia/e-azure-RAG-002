@@ -397,7 +397,17 @@ async def list_uploaded(auth_claims: dict[str, Any]):
 
 @bp.before_app_serving
 async def setup_clients():
-    # Replace these with your own values, either in environment variables or directly here
+    # Debug: Print all critical environment variables (except secrets)
+    debug_vars = [
+        "AZURE_STORAGE_ACCOUNT", "AZURE_STORAGE_CONTAINER", "AZURE_IMAGESTORAGE_CONTAINER",
+        "AZURE_USERSTORAGE_ACCOUNT", "AZURE_USERSTORAGE_CONTAINER", "AZURE_SEARCH_SERVICE",
+        "AZURE_SEARCH_INDEX", "AZURE_OPENAI_CHATGPT_MODEL", "AZURE_OPENAI_ENDPOINT",
+        "AZURE_OPENAI_EMB_DIMENSIONS", "AZURE_OPENAI_EMB_MODEL_NAME", "AZURE_SUBSCRIPTION_ID",
+        "AZURE_TENANT_ID", "AZURE_SEARCH_FIELD_NAME_EMBEDDING"
+    ]
+    for var in debug_vars:
+        value = os.getenv(var)
+        current_app.logger.info(f"ENV {var} = {value}")
     AZURE_STORAGE_ACCOUNT = os.environ["AZURE_STORAGE_ACCOUNT"]
     AZURE_STORAGE_CONTAINER = os.environ["AZURE_STORAGE_CONTAINER"]
     AZURE_IMAGESTORAGE_CONTAINER = os.environ.get("AZURE_IMAGESTORAGE_CONTAINER")
