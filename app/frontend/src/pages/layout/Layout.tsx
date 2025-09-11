@@ -45,6 +45,7 @@ const Layout = () => {
                         <ul className={`${styles.headerNavList} ${menuOpen ? styles.show : ""}`}>
                             <li>
                                 <NavLink
+                                    style={{ display: "none" }}
                                     to="/"
                                     className={({ isActive }) => (isActive ? styles.headerNavPageLinkActive : styles.headerNavPageLink)}
                                     onClick={() => setMenuOpen(false)}
@@ -54,6 +55,7 @@ const Layout = () => {
                             </li>
                             <li>
                                 <NavLink
+                                    style={{ display: "none" }}
                                     to="/qa"
                                     className={({ isActive }) => (isActive ? styles.headerNavPageLinkActive : styles.headerNavPageLink)}
                                     onClick={() => setMenuOpen(false)}

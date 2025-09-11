@@ -68,7 +68,7 @@ export function parseAnswerToHtml(answer: ChatAppResponse, isStreaming: boolean,
 
             return renderToStaticMarkup(
                 <a className="supContainer" title={part + pageSuffix} onClick={() => onCitationClicked(path)}>
-                    <sup>{citationIndex}</sup>
+                    <sup className="citation">{citationIndex}</sup>
                     {pageSuffix}
                 </a>
             );

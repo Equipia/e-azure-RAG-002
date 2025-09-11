@@ -11,7 +11,7 @@
 }
 
 .header {
-    background-color: #222222;
+    background-color: #5b7b00;
     color: #f2f2f2;
 }
 
@@ -45,7 +45,7 @@
     z-index: 100;
     display: none;
     flex-direction: column;
-    background-color: #222222;
+    background-color: #5b7b00;
     position: absolute;
     top: 2.7rem;
     right: 0;
