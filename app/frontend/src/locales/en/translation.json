@@ -40,7 +40,7 @@
         "1": "MRI Scanner",
         "2": "Respirator",
         "3": "Hospital Bed",
-        "placeholder": "Type a new question (e.g. how about another equipment?)"
+        "placeholder": "Ask about an equipment type (e.g. CT Scanner)"
     },
     "askTitle": "Ask your data",
     "multimodalExamples": {

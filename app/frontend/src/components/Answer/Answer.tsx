@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { Stack, IconButton } from "@fluentui/react";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
@@ -44,9 +45,11 @@ export const Answer = ({
     showSpeechOutputBrowser
 }: Props) => {
     const followupQuestions = answer.context?.followup_questions;
-    const parsedAnswer = useMemo(() => parseAnswerToHtml(answer, isStreaming, onCitationClicked), [answer]);
+    const parsedAnswer = useMemo(() => parseAnswerToHtml(answer, isStreaming, onCitationClicked), [answer, isStreaming, onCitationClicked]);
     const { t } = useTranslation();
-    const sanitizedAnswerHtml = DOMPurify.sanitize(parsedAnswer.answerHtml);
+    // Convert answerElements to HTML string for copy functionality
+    const answerHtmlString = useMemo(() => renderToStaticMarkup(<>{parsedAnswer.answerElements}</>), [parsedAnswer.answerElements]);
+    const sanitizedAnswerHtml = DOMPurify.sanitize(answerHtmlString);
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -100,11 +103,10 @@ export const Answer = ({
             </Stack.Item>
 
             <Stack.Item grow>
-                <div className={styles.answerText}>
-                    <ReactMarkdown children={sanitizedAnswerHtml} rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]} />
-                </div>
+                <div className={styles.answerText}>{parsedAnswer.answerElements}</div>
             </Stack.Item>
 
+            {/*
             {!!parsedAnswer.citations.length && (
                 <Stack.Item>
                     <Stack horizontal wrap tokens={{ childrenGap: 5 }}>
@@ -133,6 +135,7 @@ export const Answer = ({
                     </Stack>
                 </Stack.Item>
             )}
+            */}
 
             {!!followupQuestions?.length && showFollowupQuestions && onFollowupQuestionClicked && (
                 <Stack.Item>

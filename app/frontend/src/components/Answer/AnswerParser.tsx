@@ -1,13 +1,16 @@
 import { renderToStaticMarkup } from "react-dom/server";
+import React from "react";
+import styles from "./Answer.module.css";
 import { ChatAppResponse, getCitationFilePath } from "../../api";
 import { getOriginalPage } from "../../api/pdfPageMapping";
 
 type HtmlParsedAnswer = {
-    answerHtml: string;
+    answerElements: React.ReactNode[];
     citations: string[];
 };
 
 export function parseAnswerToHtml(answer: ChatAppResponse, isStreaming: boolean, onCitationClicked: (citationFilePath: string) => void): HtmlParsedAnswer {
+    // Returns React elements for answer with inline citations
     const possibleCitations = answer.context.data_points.citations || [];
     const citations: string[] = [];
 
@@ -29,54 +32,60 @@ export function parseAnswerToHtml(answer: ChatAppResponse, isStreaming: boolean,
         parsedAnswer = truncatedAnswer;
     }
 
-    const parts = parsedAnswer.split(/\[([^\]]+)\]/g);
+    // Split into paragraphs by double newlines
+    const paragraphStrings = parsedAnswer.split(/\n\n+/);
+    const answerElements: React.ReactNode[] = [];
 
-    const fragments: string[] = parts.map((part, index) => {
-        if (index % 2 === 0) {
-            return part;
-        } else {
-            let citationIndex: number;
-
-            const isValidCitation = possibleCitations.some(citation => {
-                return citation.startsWith(part);
-            });
-
-            if (!isValidCitation) {
-                return `[${part}]`;
-            }
-
-            if (citations.indexOf(part) !== -1) {
-                citationIndex = citations.indexOf(part) + 1;
+    paragraphStrings.forEach((para, paraIdx) => {
+        // Split paragraph into text and citations
+        const parts = para.split(/\[([^\]]+)\]/g);
+        const children: React.ReactNode[] = [];
+        for (let i = 0; i < parts.length; i++) {
+            if (i % 2 === 0) {
+                if (parts[i]) children.push(parts[i]);
             } else {
-                citations.push(part);
-                citationIndex = citations.length;
-            }
-
-            const path = getCitationFilePath(part);
-
-            // Try to extract part file and page number from citation string
-            let pageSuffix = "";
-            const match = part.match(/(z8000-18-part\d+\.pdf)#page=(\d+)/);
-            if (match) {
-                const [, partFile, pageStr] = match;
-                const pageNum = parseInt(pageStr, 10);
-                const origPage = getOriginalPage(partFile, pageNum);
-                if (origPage) {
-                    pageSuffix = ` (Page ${origPage})`;
+                const part = parts[i];
+                let citationIndex: number;
+                const isValidCitation = possibleCitations.some(citation => citation.startsWith(part));
+                if (!isValidCitation) {
+                    children.push(`[${part}]`);
+                    continue;
                 }
+                if (citations.indexOf(part) !== -1) {
+                    citationIndex = citations.indexOf(part) + 1;
+                } else {
+                    citations.push(part);
+                    citationIndex = citations.length;
+                }
+                const path = getCitationFilePath(part);
+                const strippedPath = path.replace(/\([^)]*\)$/, "");
+                // Try to extract part file and page number from citation string
+                let pageSuffix = "";
+                const match = part.match(/(z8000-18-part\d+\.pdf)#page=(\d+)/);
+                if (match) {
+                    const [, partFile, pageStr] = match;
+                    const pageNum = parseInt(pageStr, 10);
+                    const origPage = getOriginalPage(partFile, pageNum);
+                    if (origPage) {
+                        pageSuffix = ` (Page ${origPage})`;
+                    }
+                }
+                children.push(
+                    <a className={styles.citation} title={part + pageSuffix} onClick={() => onCitationClicked(strippedPath)} key={`citation-${paraIdx}-${i}`}>
+                        {/* Original: {`${citationIndex}. ${part}${pageSuffix}`} */}
+                        (Source)
+                    </a>
+                );
             }
-
-            return renderToStaticMarkup(
-                <a className="supContainer" title={part + pageSuffix} onClick={() => onCitationClicked(path)}>
-                    <sup className="citation">{citationIndex}</sup>
-                    {pageSuffix}
-                </a>
-            );
+        }
+        // Only add <p> if there is content
+        if (children.length > 0) {
+            answerElements.push(<p key={`para-${paraIdx}`}>{children}</p>);
         }
     });
 
     return {
-        answerHtml: fragments.join(""),
+        answerElements,
         citations
     };
 }
