@@ -421,7 +421,7 @@ const Chat = () => {
                             <img src={appLogo} alt="App logo" width="360" />
 
                             <h1 className={styles.chatEmptyStateTitle}>{t("chatEmptyStateTitle")}</h1>
-                            <h2 className={styles.chatEmptyStateSubtitle}>{t("chatEmptyStateSubtitle")}</h2>
+                            <h2 className={styles.chatEmptyStateSubtitle} dangerouslySetInnerHTML={{ __html: t("chatEmptyStateSubtitle") }} />
                             {showLanguagePicker && <LanguagePicker onLanguageChange={newLang => i18n.changeLanguage(newLang)} />}
 
                             <ExampleList onExampleClicked={onExampleClicked} useMultimodalAnswering={showMultimodalOptions} />
@@ -579,6 +579,9 @@ const Chat = () => {
                     />
                     {useLogin && <TokenClaimsDisplay />}
                 </Panel>
+            </div>
+            <div style={{ textAlign: "center", marginTop: 24, marginBottom: 8, fontSize: 12, color: "#888" }}>
+                © All referenced content remains the property of its original copyright holders. This demo is for demonstration and internal use only.
             </div>
         </div>
     );

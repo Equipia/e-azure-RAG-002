@@ -36,6 +36,13 @@ export function parseAnswerToHtml(answer: ChatAppResponse, isStreaming: boolean,
     const paragraphStrings = parsedAnswer.split(/\n\n+/);
     const answerElements: React.ReactNode[] = [];
 
+    // Add code for checking line before structured answers
+    answerElements.push(
+        <div key="code-for-checking" style={{ fontWeight: "bold", marginBottom: 8 }}>
+            Code for checking: CSA Z8000-18 (Canadian Health Care Facilities)
+        </div>
+    );
+
     paragraphStrings.forEach((para, paraIdx) => {
         // Split paragraph into text and citations
         const parts = para.split(/\[([^\]]+)\]/g);

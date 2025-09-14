@@ -26,7 +26,7 @@
     justify-content: center;
     align-items: center;
     max-height: 64rem;
-    padding-top: 1rem;
+    padding-top: 0.25rem;
 }
 
 .chatEmptyStateTitle {
@@ -114,7 +114,7 @@
     }
 
     .chatEmptyState {
-        padding-top: 3.75rem;
+        padding-top: 2.8125rem;
     }
 
     .chatEmptyStateTitle {

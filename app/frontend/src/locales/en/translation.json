@@ -35,7 +35,7 @@
     "developerSettings": "Developer settings",
 
     "chatEmptyStateTitle": "Check faster, Comply better",
-    "chatEmptyStateSubtitle": "Provide the equipment type to check compliance or try an example",
+    "chatEmptyStateSubtitle": "Provide the equipment type to check compliance or try an example<br /><br />Code for checking: CSA Z8000-18 (Canadian Health Care Facilities)",
     "defaultExamples": {
         "1": "MRI Scanner",
         "2": "Respirator",
